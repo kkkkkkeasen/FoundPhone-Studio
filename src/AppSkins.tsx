@@ -47,6 +47,7 @@ export type SkinProps = {
   onBack: () => void;
   thread: string;
   onThread: (s: string) => void;
+  onSend?: (body: string) => void;
 };
 function Avatar({
   name,
@@ -135,20 +136,39 @@ function MessageList({
 function Compose({
   creator,
   onAdd,
+  onSend,
   wa = false,
 }: {
   creator: boolean;
   onAdd: () => void;
+  onSend?: (body: string) => void;
   wa?: boolean;
 }) {
+  const [draft, setDraft] = useState("");
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const body = draft.trim();
+    if (!body) return;
+    onSend?.(body);
+    setDraft("");
+  };
   return (
-    <div className={`skin-compose ${wa ? "wa-compose" : ""}`}>
+    <form className={`skin-compose ${wa ? "wa-compose" : ""}`} onSubmit={submit}>
       {wa ? <Plus size={20} /> : <Mic size={20} />}
-      <NativeComposer creator={creator} onAdd={onAdd} />
-
+      {creator ? (
+        <NativeComposer creator onAdd={onAdd} />
+      ) : (
+        <input
+          className="native-compose-field"
+          aria-label="输入消息"
+          placeholder="发送消息"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+        />
+      )}
       <Smile size={21} />
-      {wa ? <Mic size={20} /> : <Plus size={22} />}
-    </div>
+      {wa ? <Mic size={20} /> : <button type="submit" aria-label="发送消息" disabled={!draft.trim()}><Send size={21} /></button>}
+    </form>
   );
 }
 export function WeChatSkin(p: SkinProps) {
@@ -283,7 +303,7 @@ export function WeChatSkin(p: SkinProps) {
             onItem={p.onItem}
             onRead={p.onRead}
           />
-          <Compose creator={p.creator} onAdd={p.onAdd} />
+          <Compose creator={p.creator} onAdd={p.onAdd} onSend={p.onSend} />
         </>
       ) : moments ? (
         <div className="wx-moments">
