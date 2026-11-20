@@ -1,6 +1,6 @@
 import { NativeComposer } from "./DeviceSystem";
 import { useSkinState } from "./skinState";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   ChevronLeft,
   Plus,
@@ -145,7 +145,7 @@ function Compose({
   wa?: boolean;
 }) {
   const [draft, setDraft] = useState("");
-  const submit = (event: React.FormEvent) => {
+  const submit = (event: FormEvent) => {
     event.preventDefault();
     const body = draft.trim();
     if (!body) return;
@@ -155,8 +155,8 @@ function Compose({
   return (
     <form className={`skin-compose ${wa ? "wa-compose" : ""}`} onSubmit={submit}>
       {wa ? <Plus size={20} /> : <Mic size={20} />}
-      {creator ? (
-        <NativeComposer creator onAdd={onAdd} />
+      {creator || wa ? (
+        <NativeComposer creator={creator} onAdd={onAdd} />
       ) : (
         <input
           className="native-compose-field"
