@@ -1,5 +1,4 @@
 import { StatusGlyph } from "./ios/StatusGlyph";
-import { AIContacts } from "./AIContacts";
 import { SocialDetail, socialDetailApps } from "./skins/SocialDetails";
 import { NativeCalculator } from "./ios/Calculator";
 import { HomeLauncher } from "./launcher/HomeLauncher";
@@ -57,6 +56,7 @@ import {
 import { getApp, type AppPlugin } from "./registry";
 import {
   initialRuntime,
+  makeItem,
   safeMedia,
   type Work,
   type Item,
@@ -454,6 +454,23 @@ function PhoneRuntime({
                   creator={creator}
                   state={s}
                   onRead={(id) => event("read", id)}
+                  onSend={(thread, body) => {
+                    const current = runtimeRef.current;
+                    const message = makeItem({
+                      title: thread,
+                      body,
+                      sender: work.phone.owner || "我",
+                      outgoing: true,
+                      time: `${current.time || work.phone.time}`,
+                    });
+                    update({
+                      ...current,
+                      messages: {
+                        ...current.messages,
+                        [app]: [...(current.messages[app] ?? []), message],
+                      },
+                    });
+                  }}
                   onEdit={(item) => onEdit?.(app, item)}
                   onAdd={() => onAdd?.(app)}
                   onBack={() => setApp("")}
@@ -862,6 +879,7 @@ function AppContent({
   creator,
   state,
   onRead,
+  onSend,
   onEdit,
   onAdd,
   onBack,
@@ -875,6 +893,7 @@ function AppContent({
   creator: boolean;
   state: Runtime;
   onRead: (id: string) => void;
+  onSend: (thread: string, body: string) => void;
   onEdit: (item: Item) => void;
   onAdd: () => void;
   onBack: () => void;
@@ -1001,6 +1020,7 @@ function AppContent({
               onBack={onBack}
               thread={thread}
               onThread={setThread}
+              onSend={(body) => onSend(thread, body)}
             />
           </Suspense>
         </div>
@@ -1056,9 +1076,7 @@ function AppContent({
           {creator ? <Plus size={22} /> : <Search size={20} />}
         </button>
       </div>
-      {app.id === "contacts" && !detail ? (
-        <AIContacts />
-      ) : app.id === "settings" && !detail ? (
+      {app.id === "settings" && !detail ? (
         <NativeSettings
           work={work}
           items={items}
