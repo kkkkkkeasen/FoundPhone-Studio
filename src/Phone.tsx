@@ -461,7 +461,7 @@ function PhoneRuntime({
                       body,
                       sender: work.phone.owner || "我",
                       outgoing: true,
-                      time: `${current.time || work.phone.time}`,
+                      time: `${current.date || work.phone.date || "2026-11-20"} ${current.time || work.phone.time}`,
                     });
                     update({
                       ...current,
