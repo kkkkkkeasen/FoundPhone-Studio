@@ -1,4 +1,5 @@
 import { StatusGlyph } from "./ios/StatusGlyph";
+import { AIContacts } from "./AIContacts";
 import { SocialDetail, socialDetailApps } from "./skins/SocialDetails";
 import { NativeCalculator } from "./ios/Calculator";
 import { HomeLauncher } from "./launcher/HomeLauncher";
@@ -1055,7 +1056,9 @@ function AppContent({
           {creator ? <Plus size={22} /> : <Search size={20} />}
         </button>
       </div>
-      {app.id === "settings" && !detail ? (
+      {app.id === "contacts" && !detail ? (
+        <AIContacts />
+      ) : app.id === "settings" && !detail ? (
         <NativeSettings
           work={work}
           items={items}
